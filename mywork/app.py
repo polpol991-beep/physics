@@ -6,10 +6,20 @@ st.set_page_config(page_title="물리 학습 시스템", page_icon="🏫")
 
 # 1. 구글 시트 연결 (DB 역할)
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+import json
 import os
-current_folder = os.path.dirname(os.path.abspath(__file__))
-key_path = os.path.join(current_folder, "credentials.json")
-creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
+
+# 🌟 똑똑한 열쇠 탐색기 (클라우드와 내 컴퓨터 모두 호환)
+if "google_creds" in st.secrets:
+    # 1. 인터넷(스트림릿)에서 실행될 때: 비밀 금고에서 열쇠를 꺼냅니다.
+    creds_dict = json.loads(st.secrets["google_creds"])
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+else:
+    # 2. 내 컴퓨터(VS Code)에서 실행될 때: 기존처럼 파일을 찾습니다.
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    parent_folder = os.path.dirname(current_folder) 
+    key_path = os.path.join(parent_folder, "credentials.json")
+    creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
 client = gspread.authorize(creds)
 
 # 🌟 여기에 만든 구글 시트 파일 이름을 정확히 적으세요!
