@@ -3,6 +3,7 @@ import streamlit.components.v1 as components
 import random
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import os
 
 st.set_page_config(page_title="1. 힘과 운동", page_icon="🚀", layout="wide")
 
@@ -10,9 +11,8 @@ st.set_page_config(page_title="1. 힘과 운동", page_icon="🚀", layout="wide
 # 🛠️ 구글 시트 연동 세팅
 # =====================================================================
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-import os
 
-# 👇 현재 방(pages 폴더)에서 한 칸 밖(mywork 폴더)으로 나가서 열쇠를 찾는 마법의 코드입니다.
+# 👇 현재 방(pages 폴더)에서 한 칸 밖(mywork 폴더)으로 나가서 열쇠와 사진을 찾는 마법의 코드입니다.
 current_folder = os.path.dirname(os.path.abspath(__file__))
 parent_folder = os.path.dirname(current_folder) # 상위 폴더로 이동!
 key_path = os.path.join(parent_folder, "credentials.json")
@@ -51,17 +51,20 @@ with tab_learn:
         with st.expander("1. 힘의 평형과 돌림힘", expanded=True):
             st.markdown("### 가. 힘의 평형")
             st.markdown("* **알짜힘:** 물체에 작용하는 모든 힘을 합친 것을 의미합니다.")
-            st.image("img/image_e81eaa.png", caption="힘의 평형과 돌림힘의 평형을 모두 만족하는 선반", use_container_width=True)
+            # 🌟 [수정 완료] 사진 경로 앞에 parent_folder 연결
+            st.image(os.path.join(parent_folder, "img", "image_e81eaa.png"), caption="힘의 평형과 돌림힘의 평형을 모두 만족하는 선반", use_container_width=True)
             st.markdown("* **힘의 평형:** 물체에 작용하는 알짜힘이 0인 상태를 말합니다.")
             
         with st.expander("2. 물체의 운동", expanded=True):
             st.markdown("### 가. 이동 거리와 변위")
-            st.image("img/image03.png", caption="경로에 따른 이동 거리와 변위의 차이", use_container_width=True)
+            # 🌟 [수정 완료] 사진 경로 앞에 parent_folder 연결
+            st.image(os.path.join(parent_folder, "img", "image03.png"), caption="경로에 따른 이동 거리와 변위의 차이", use_container_width=True)
             st.markdown("* **이동 거리:** 물체가 실제로 움직인 총거리입니다.")
 
         with st.expander("3. 운동량과 충격량"):
             st.markdown("### 가. 운동량과 운동량 보존 법칙")
-            st.image("img/image11.png", caption="두 물체의 충돌 전후", use_container_width=True)
+            # 🌟 [수정 완료] 사진 경로 앞에 parent_folder 연결
+            st.image(os.path.join(parent_folder, "img", "image11.png"), caption="두 물체의 충돌 전후", use_container_width=True)
             st.markdown("* **운동량:** 운동하는 물체가 가진 운동하는 정도를 나타내는 물리량입니다.")
 
 # ---------------------------------------------------------
@@ -108,7 +111,7 @@ with tab_quiz:
         all_questions = [
             {"level": "중", "q": "길이가 $L$인 질량이 균일한 막대가 줄 A, B에 매달려 정지해 있다. 줄 A는 왼쪽 끝에, 줄 B는 오른쪽 끝에서 $\\frac{1}{3}L$ 떨어진 곳에 있다. A, B가 막대를 당기는 힘의 크기 비 $\\frac{F_A}{F_B}$는?", "img": "img/스크린샷 2026-08-31 154719.png", "options": ["1/3", "1/2", "1", "2", "3"], "answer": "1/2"},
             {"level": "상", "q": "바닥면 한 변의 길이가 10 cm이고 높이가 12 cm인 균일한 직육면체 구조물의 한끝을 민다. 구조물이 넘어지지 않기 위한 $\\tan \\theta$의 최댓값은?", "img": "img/스크린샷 2026-08-31 154725.png", "options": ["1/6", "2/5", "1/2", "2/3", "5/6"], "answer": "5/6"},
-            {"level": "하", "q": "직선상에서 운동하는 네 물체 A~D의 속도-시간 그래프에서 A와 C는 기울기가 양수인 직선, B와 D는 기울기가 0인 직선이다 (B의 속도>0, D의 속도=0). 이에 대한 설명으로 옳은 것은?", "img": "img/스크린샷 2026-08-31 154734.png", "options": ["A와 C의 속도는 항상 같다.", "A와 C는 속도가 일정한 운동을 한다.", "B와 D는 정지해 있다.", "B와 D의 가속도는 0이다.", "3초 동안 변위의 크기는 B가 가장 크다."], "answer": "B와 D의 가속도는 0이다."},
+            {"level": "하", "q": "직선상에서 운동하는 네 물체 A~D의 속도-시간 그래프에서 A와 C는 기울기가 양수인 직선, B와 D는 기울기가 0인 직선이다 (B의 속도>0, D의 속도=0). 이에 대한 설명으로 옳은 것은?", "img": "img/스크린샷 2026-08-31 154734.png", "options": ["A와 C의 속도는 항상 같다.", "A와 C는 속도가 일정한 운동을 가한다.", "B와 D는 정지해 있다.", "B와 D의 가속도는 0이다.", "3초 동안 변위의 크기는 B가 가장 크다."], "answer": "B와 D의 가속도는 0이다."},
             {"level": "중", "q": "마찰이 없는 수평면에 질량이 각각 $m, 2m, m$인 물체 A, B, C가 있다. 이들에게 각각 $F, F, 3F$의 알짜힘이 작용할 때, 세 물체의 가속도 비 $a_A : a_B : a_C$ 는?", "img": "img/스크린샷 2026-08-31 154745.png", "options": ["1 : 1 : 3", "2 : 1 : 6", "1 : 2 : 3", "2 : 2 : 6", "3 : 1 : 2"], "answer": "2 : 1 : 6"},
             {"level": "상", "q": "속도 $v$로 달리던 자동차가 브레이크를 밟아 정지할 때까지의 이동 거리를 $s$라 하자. 알짜힘이 일정할 때, 속도가 $3v$가 되면 제동거리 $s$는 몇 배가 되는가?", "img": "img/스크린샷 2026-08-31 154803.png", "options": ["3배", "6배", "9배", "12배", "15배"], "answer": "9배"},
             {"level": "중", "q": "물체 A, B를 손바닥으로 받쳐 정지해 있다. A가 B를 누르는 힘 $F_{AB}$, B가 손을 누르는 힘 $F_{B손}$, 손이 B를 떠받치는 힘 $F_{손B}$의 크기를 옳게 비교한 것은?", "img": "img/스크린샷 2026-08-31 154822.png", "options": ["$F_{AB} > F_{B손} > F_{손B}$", "$F_{AB} > F_{B손} = F_{손B}$", "$F_{AB} = F_{B손} < F_{손B}$", "$F_{AB} < F_{B손} < F_{손B}$", "$F_{AB} < F_{B손} = F_{손B}$"], "answer": "$F_{AB} < F_{B손} = F_{손B}$"},
@@ -176,8 +179,10 @@ with tab_quiz:
             user_answers = []
             for i, q in enumerate(st.session_state.quiz_questions):
                 st.markdown(f"#### 문제 {i+1}.")
+                # 🌟 [수정 완료] 퀴즈 이미지 경로에도 parent_folder 연결
                 if q.get("img"):
-                    st.image(q["img"], use_container_width=True)
+                    img_path = os.path.join(parent_folder, q["img"])
+                    st.image(img_path, use_container_width=True)
                 st.write(q["q"])
                 ans = st.radio("선택해 주세요.", q["options"], key=f"q_{i}", index=None)
                 user_answers.append(ans)
