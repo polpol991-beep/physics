@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>물리학 II 그랜드 피날레 10단계</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background-color: #f4f6f9; color: #212529; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        h1 { color: #0d6efd; margin-bottom: 5px; font-weight: 900; font-size: 24px; text-align: center; word-break: keep-all; }
+        .subtitle { color: #6c757d; margin-bottom: 20px; font-size: 14px; text-align: center; word-break: keep-all; }
+        
+        .container { width: 100%; max-width: 950px; background: #ffffff; border-radius: 12px; border: 1px solid #dee2e6; padding: 20px; box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        
+        /* 탭 버튼 대신 사용하는 진행 상태 바 */
+        .progress-container { width: 100%; text-align: center; margin-bottom: 20px; }
+        .progress-text { font-size: 18px; font-weight: bold; color: #0d6efd; margin-bottom: 8px; }
+        .progress-bg { width: 100%; background: #e9ecef; border-radius: 10px; height: 12px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .progress-fill { width: 10%; height: 100%; background: linear-gradient(90deg, #0d6efd, #0dcaf0); transition: width 0.5s ease-in-out; }
+        
+        .phase-panel { display: none; opacity: 0; transition: opacity 0.3s; }
+        .phase-panel.active { display: block; opacity: 1; }
+        .phase-title { font-size: 18px; color: #d63384; margin-bottom: 10px; text-align: center; font-weight: bold; }
+        
+        .hint-box { background: #e7f1ff; color: #084298; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13.5px; border: 1px solid #b6d4fe; text-align: center; font-weight: 600; line-height: 1.4; word-break: keep-all; }
+        
+        .target-box { background: #e2e3e5; color: #212529; padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 14.5px; font-weight: bold; border-left: 5px solid #d63384; text-align: left; word-break: keep-all; line-height: 1.4; }
+        .desc-box { background: #f8f9fa; color: #212529; padding: 15px; border-radius: 6px; margin-bottom: 10px; font-size: 14.5px; border-left: 5px solid #0d6efd; text-align: left; word-break: keep-all; line-height: 1.5; }
+
+        .control-panel { display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e9ecef; }
+        .input-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .input-box { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 30%; max-width: 150px; }
+        
+        label { font-size: 12px; color: #495057; margin-bottom: 5px; font-weight: bold; text-align: center; }
+        input { background: #ffffff; border: 2px solid #adb5bd; color: #0d6efd; padding: 8px; width: 100%; box-sizing: border-box; text-align: center; font-size: 16px; font-weight: bold; border-radius: 6px; outline: none; }
+        input:focus { border-color: #0d6efd; }
+        
+        button { background: #198754; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; width: 100%; margin-top: 5px; max-width: 300px; align-self: center; }
+        button:hover { background: #157347; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        canvas { background-color: #fdfdfe; border: 2px solid #dee2e6; border-radius: 8px; display: block; width: 100%; height: auto; aspect-ratio: 950 / 400; }
+        .status { text-align: center; margin-top: 15px; font-size: 14.5px; font-weight: bold; min-height: 40px; color: #0d6efd; padding: 10px; background: #e9ecef; border-radius: 6px; border: 1px solid #dee2e6; word-break: keep-all; }
+        .tab-container { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 20px; width: 100%; max-width: 950px;}
+        .tab-btn { background: #e9ecef; border: 1px solid #ced4da; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; color: #495057; transition: 0.2s; flex: 1; min-width: 80px; max-width: 120px;}
+        .tab-btn.active { background: #0d6efd; color: white; border-color: #0d6efd; }
+        .score-board { background: #212529; color: #ffc107; font-size: 20px; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .hint-btn { background: #ffc107; color: #212529; border: none; padding: 6px 12px; font-size: 13px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .hint-btn:hover { background: #e0a800; }
+        .hint-text { background: #e7f1ff; color: #084298; padding: 8px 12px; border-radius: 4px; font-size: 13px; margin-bottom: 5px; border-left: 4px solid #0d6efd; display: none; text-align: left; }
+        
+        /* 로그인 오버레이 디자인 */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 10000; transition: 0.5s; }
+        #loginBox { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(255,255,255,0.2); width: 90%; max-width: 400px; }
+        #loginBox h2 { color: #0d6efd; margin-bottom: 25px; font-weight: 900; }
+        #loginBox input { width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        #loginBox input:focus { border-color: #0d6efd; outline: none; }
+        #loginBox button { width: 100%; padding: 15px; background: #0d6efd; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        #loginBox button:hover { background: #0b5ed7; }
+        #loginBox button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        /* 🏆 최종 클리어 축하 화면 디자인 */
+        #clearScreen { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(135deg, #020024, #090979, #00d4ff); 
+            color: white; z-index: 20000; justify-content: center; align-items: center; 
+            flex-direction: column; text-align: center; opacity: 0; transition: opacity 1.5s ease-in-out; 
+        }
+        .clear-box { 
+            background: rgba(255, 255, 255, 0.1); padding: 50px; border-radius: 20px; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px); 
+            border: 2px solid rgba(255, 255, 255, 0.2); width: 90%; max-width: 600px;
+        }
+        .clear-title { font-size: 45px; font-weight: 900; margin-bottom: 20px; color: #ffc107; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); word-break: keep-all;}
+        .clear-text { font-size: 20px; line-height: 1.6; margin-bottom: 30px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); word-break: keep-all;}
+        .clear-score { font-size: 35px; font-weight: bold; color: #0dcaf0; background: rgba(0, 0, 0, 0.4); padding: 15px 30px; border-radius: 12px; display: inline-block; border: 1px solid #0dcaf0;}
+        .progress-wrapper { width: 100%; max-width: 800px; margin: 15px auto; padding: 0; }
+        .progress-label { font-size: 16px; font-weight: 900; color: #495057; margin-bottom: 8px; text-align: right; font-style: italic; }
+        .progress-track { width: 100%; height: 16px; background-color: #e9ecef; border-radius: 20px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #0d6efd, #00d4ff); width: 10%; border-radius: 20px; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body>
+    <div id="clearScreen" style="display: none; opacity: 0;">
+        <div class="clear-box">
+            <div class="clear-title">🚀 SYSTEM ALL CLEAR 🚀</div>
+            <div class="clear-text">
+                축하합니다!<br>
+                용수철부터 우주 궤도까지, 물리학 II 10단계 방탈출을 완벽하게 정복했습니다.<br>
+                성공 데이터가 중앙 서버로 전송되었습니다.
+            </div>
+            <div class="clear-score">최종 획득 점수: <span id="finalScoreDisplay">1000</span> 점</div>
+        </div>
+    </div>
+
+    <h1>🚀 물리학 II 10단계 방탈출</h1>
+    <p class="subtitle">역학 ➔ 전자기 ➔ 파동 ➔ 열 ➔ 우주 시스템 최적화</p>
+
+    <!-- 10단계 메뉴 버튼 (자유 모드) -->
+    <div class="tab-container">
+        <button class="tab-btn active" id="tab1" onclick="switchPhase(1)">1단계</button>
+        <button class="tab-btn" id="tab2" onclick="switchPhase(2)">2단계</button>
+        <button class="tab-btn" id="tab3" onclick="switchPhase(3)">3단계</button>
+        <button class="tab-btn" id="tab4" onclick="switchPhase(4)">4단계</button>
+        <button class="tab-btn" id="tab5" onclick="switchPhase(5)">5단계</button>
+        <button class="tab-btn" id="tab6" onclick="switchPhase(6)">6단계</button>
+        <button class="tab-btn" id="tab7" onclick="switchPhase(7)">7단계</button>
+        <button class="tab-btn" id="tab8" onclick="switchPhase(8)">8단계</button>
+        <button class="tab-btn" id="tab9" onclick="switchPhase(9)">9단계</button>
+        <button class="tab-btn" id="tab10" onclick="switchPhase(10)">10단계</button>
+    </div>
+
+    <div class="container">
+        <div class="score-board">
+            내 점수: <span id="scoreDisplay">1000</span> / 1000
+        </div>
+        <div class="progress-wrapper">
+            <div class="progress-label">
+                MISSION PROGRESS: <span id="progressText">10%</span> (단계 <span id="currentPhaseNum">1</span> / 10)
+            </div>
+            <div class="progress-track">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="controls-area"></div>
+
+        <canvas id="mainCanvas" width="950" height="400"></canvas>
+        <div class="status" id="statusMessage">로딩 중...</div>
+    </div>
+
+<script>
+    const g = 10;
+    const m = 1;
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    let currentPhase = 1;
+    let animId;
+    let isAnimating = false;
+    let state = {}; 
+
+    // 🔥 접속한 학생 정보를 기억할 변수 추가
+    let currentUser = { id: "", name: "" };
+
+    let gameData = {
+        score: 1000,
+        hintsUsed: { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0 }
+    };
+    let p1_targetX = Math.floor(Math.random() * 8) + 8;
+    let p1_targetY = Math.floor(Math.random() * 6) + 3;
+    let p1_targetV = Math.floor(Math.random() * 8) + 8;
+    // 🔥 머신러닝(데이터 누적) 변수 설정
+    let phaseAttempts = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0}; // 시도 횟수
+    let phaseGhosts = {1:[]}; // 1단계 잔상(궤적) 데이터 보관
+
+    // 🔥 동적 힌트(매크로 피드백) 업데이트 함수
+    function updateDynamicHint(p, attempts) {
+        let hintEl = document.getElementById(`dynamic_hint_${p}`);
+        if(!hintEl) return;
+        
+        let hintText = "";
+        if (p === 1) {
+            if (attempts >= 15) {
+                hintText = "💡 [데이터 학습량: 15회] 한계 도달. 이제 공식을 쓸 때입니다. 초기 용수철 에너지(½kx²)가 타겟 위치의 총 역학적 에너지와 같다는 식을 세워 초기 속도를 구하세요.";
+            } else if (attempts >= 10) {
+                hintText = "💡 [데이터 학습량: 10회] 궤도가 거의 맞았나요? 깔때기에 '위에서 아래로' 꽂히려면 발사각(θ)을 더 높여 체공 시간을 늘리는 것이 유리할 수 있습니다.";
+            } else if (attempts >= 5) {
+                hintText = "💡 [데이터 학습량: 5회] 궤적들을 비교해보세요. 압축 길이(x)를 2배로 늘린다고 도달 높이가 2배만 커지지 않습니다. '제곱 비례'를 의심하세요.";
+            }
+        }
+        if(hintText) {
+            hintEl.style.display = "block";
+            hintEl.innerHTML = hintText;
+        }
+    }
+    let p2_v1 = Math.floor(Math.random() * 11); // 초기 속력: 0 ~ 10 정수
+    let p2_v2 = p2_v1 + Math.floor(Math.random() * 11) + 15; // 목표 속력: 초기 속력보다 15~25 빠른 정수
+
+    function loadData() {
+        let saved = localStorage.getItem('physicsEscapeData');
+        if(saved) gameData = JSON.parse(saved);
+        document.getElementById('scoreDisplay').innerText = gameData.score;
+    }
+
+    // 🔥 saveData 덮어쓰기: 로컬 저장 + 구글 시트로 점수 쏘기
+    function saveData() {
+        localStorage.setItem('physicsEscapeData', JSON.stringify(gameData));
+        document.getElementById('scoreDisplay').innerText = gameData.score;
+        
+        // 로그인된 상태이고, 구글 서버(앱스스크립트) 환경일 때만 시트에 기록
+        if (currentUser.id !== "" && typeof google !== 'undefined' && google.script) {
+            google.script.run.updateScore(currentUser.id, currentUser.name, gameData.score);
+        }
+    }
+
+    // ================== 페이즈별 설정 데이터 ==================
+    const phaseData = [
+        {}, // 0번 인덱스 비움
+        {
+            title: "[PHASE 1] 용수철 포물선 (정밀 타격)",
+            desc: `용수철 상수 k인 발사대를 x만큼 압축하여 각도 θ로 질량 1kg인 구슬을 쏘아 올리려 합니다. 전방 ${p1_targetX}m, 높이 ${p1_targetY}m 지점에 좁은 깔때기 입구가 있습니다. 구슬이 위에서 아래로 꽂히며 깔때기를 통과해야만 다음 구역으로 넘어갈 수 있습니다.`,
+            hints: [
+                `1단계 단서 (-10점): 타겟 지점(y=${p1_targetY}m)에 도달했을 때 정해진 속력이 ${p1_targetV}m/s이므로, 구슬(질량 <b>m=1kg</b>)의 그 순간 역학적 에너지(<b>E<sub>k</sub> + E<sub>p</sub></b>) 총량을 먼저 구해보세요.`,
+                "2단계 단서 (-20점): 역학적 에너지 보존에 의해 발사 순간의 용수철 탄성 퍼텐셜 에너지(&frac12;k<b>x<sup>2</sup></b>)가 타겟 지점에서의 총 역학적 에너지와 같습니다. 이를 통해 초기 발사 속도 <b>v<sub>0</sub></b>의 값을 확정할 수 있습니다.",
+                `3단계 단서 (-50점): 포물선 궤적 방정식 y = x·tanθ - <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>gx<sup>2</sup></span><span style='display:block; line-height:1.2; padding:0 2px;'>2v<sub>0</sub><sup>2</sup>cos<sup>2</sup>θ</span></span> 공식에 목표 좌표(x=${p1_targetX}, y=${p1_targetY})를 대입하고, <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>1</span><span style='display:block; line-height:1.2; padding:0 2px;'>cos<sup>2</sup>θ</span></span> 를 1+tan<sup>2</sup>θ로 치환하여 tanθ에 대한 이차방정식을 푸세요.`
+            ],
+            inputs: [
+                {id: "p1_k", label: "상수 k (N/m)", value: 100, step: 1},
+                {id: "p1_x", label: "압축 길이 x (m)", value: 1.0, step: 0.1},
+                {id: "p1_a", label: "발사각 θ (도)", value: 45, step: 0.1}
+            ],
+            targetMsg: `조건: (${p1_targetX}m, ${p1_targetY}m) 타겟에 '하강 궤적'으로 진입하며, 진입 순간 목표 속도 ${p1_targetV}m/s를 정확히 맞추시오.`
+        },
+{
+            title: "[PHASE 2] 비탈길 하강 (에너지 보존)",
+            desc: `1단계 깔때기를 무사히 통과한 구슬이 ${p2_v1}m/s의 속력으로 마찰이 없는 비탈길에 진입합니다. 비탈길 바닥에 있는 스피드 게이트를 통과하려면 속력이 정확히 ${p2_v2}m/s가 되어야 합니다.`,
+            hints: [
+                "1단계 단서 (-10점): 마찰이 없는 빗면을 내려오는 운동이므로 외부의 일은 없고 '역학적 에너지 보존 법칙'만 성립합니다.",
+                `2단계 단서 (-20점): 빗면 진입 속도(<b>v<sub>1</sub></b>=${p2_v1}m/s)일 때의 운동 에너지와 높이 <b>H</b>에서의 위치 에너지가 더해져 바닥 타겟 속도(<b>v<sub>2</sub></b>=${p2_v2}m/s)의 운동 에너지로 전환되는 식을 세우세요.`,
+                "3단계 단서 (-50점): &frac12;m<b>v<sub>1</sub><sup>2</sup></b> + mg<b>H</b> = &frac12;m<b>v<sub>2</sub><sup>2</sup></b> 공식에서 질량 <b>m</b>을 모두 약분하여 소거한 뒤, 아는 수치들을 대입하여 수직 높이 <b>H</b>를 정밀하게 유도하세요."
+            ],
+            inputs: [ {id: "p2_h", label: "초기 높이 H (m)", value: 10, step: 0.01} ],
+            targetMsg: `조건: 초기 진입 속도(${p2_v1}m/s) 기준, 바닥 타겟 속도(${p2_v2}m/s)에 정확히 도달하시오.`
+        },
+        {
+            title: "[PHASE 3] 구심력과 뱅크각 (경사면 원운동)",
+            desc: "스피드 게이트를 통과한 구슬(차량)이 반지름 50m의 뱅크각(경사면) 회전 트랙에 25m/s의 속력으로 진입합니다. 마찰력의 도움 없이, 궤도를 이탈하지 않고 매끄럽게 회전하기 위한 트랙의 이상적인 경사각(θ)을 설계해야 합니다.",
+            hints: [
+                "1단계 단서 (-10점): 자동차가 마찰력 없이 원형 트랙을 돌려면, 수직항력의 수평 성분이 그대로 원의 중심을 향하는 구심력 역할을 해야 합니다.",
+                "2단계 단서 (-20점): 수평 방향의 알짜힘 식(N·sinθ = <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>m·v<sup>2</sup></span><span style='display:block; line-height:1.2; padding:0 2px;'>R</span></span>)과 수직 방향의 평형 식(N·cosθ = mg)을 연립하면 질량과 관계없는 핵심 공식이 도출됩니다.",
+                "3단계 단서 (-50점): 연립하여 만든 공식 tanθ = <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>v<sup>2</sup></span><span style='display:block; line-height:1.2; padding:0 2px;'>gR</span></span> 에 바닥 속도 <b>v</b>=25, <b>g</b>=10, 반지름 <b>R</b>=50을 대입하여 삼각함수 역함수로 경사각을 구하세요."
+            ],
+            inputs: [ {id: "p3_a", label: "경사각 θ (도)", value: 30, step: 0.1} ],
+            targetMsg: "조건: R=50m, v=25m/s 궤도 유지에 필요한 수평 구심력을 완벽히 맞추시오."
+        },
+        {
+            title: "[PHASE 4] 완전 비탄성 충돌과 마찰력의 일",
+            desc: "회전 트랙을 25m/s로 빠져나온 구슬이 정지해 있는 질량 M의 블록과 완전 비탄성 충돌하여 한 덩어리가 되었습니다. 이후 동마찰계수 0.4인 거친 표면을 정확히 8m 미끄러진 후 멈춰야 다음 문이 열립니다.",
+            hints: [
+                "1단계 단서 (-10점): 구슬이 블록과 한 덩어리가 될 때는 '운동량 보존 법칙', 거친 바닥을 미끄러질 때는 '일-에너지 정리'를 씁니다.",
+                "2단계 단서 (-20점): 정지선(s=8m)까지 동마찰력(μ(<b>m+M</b>)g)이 한 일만큼 운동 에너지가 감소합니다. 감속 가속도 <b>a = μg</b> 임을 이용해 충돌 직후 필요한 속도 <b>V</b>를 먼저 구하세요.",
+                "3단계 단서 (-50점): 정지선에 멈추기 위한 합체 속도 <b>V</b>가 8m/s임을 알아냈다면, 충돌 전 운동량 공식 m·v = (m+M)·<b>V</b> 에 대입하여 블록 질량 <b>M</b>을 구하세요."
+            ],
+            inputs: [ {id: "p4_m", label: "블록 질량 M (kg)", value: 1.000, step: 0.001} ],
+            targetMsg: "조건: 동마찰계수 μ=0.4 구간을 8m 미끄러져 정확히 멈추시오. (소수점 3자리 정밀 연산)"
+        },
+        {
+            title: "[PHASE 5] 전기장 내 편향 운동 (수직 가속)",
+            desc: "전하량 +0.2C을 얻은 구슬(질량 1kg)이 10m/s의 수평 속력으로 길이 20m의 균일한 전기장 내부에 진입합니다. 중력의 영향을 무시할 때, 구슬이 위쪽(+)으로 정확히 2m 편향되어 좁은 출구를 빠져나가야 합니다.",
+            hints: [
+                "1단계 단서 (-10점): 전기장 내에서 구슬은 수평으로는 힘을 받지 않아 등속 운동을 하고, 수직으로는 전기력을 받아 등가속도 운동을 합니다. 수평 방향 속도와 거리를 이용해 전기장을 통과하는 데 걸리는 총 시간 <b>t</b>를 먼저 구해보세요.",
+                "2단계 단서 (-20점): 수직 방향의 초기 속도(<b>v<sub>0</sub></b>)는 0입니다. 가속도의 법칙(F=ma)과 전기력 공식(F=qE)을 연결하면 가속도 a = <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>qE</span><span style='display:block; line-height:1.2; padding:0 2px;'>m</span></span> 가 됩니다. 우리가 구해야 할 미지수 <b>E</b>가 포함된 가속도 식을 세워보세요.",
+                "3단계 단서 (-50점): 이제 등가속도 직선 운동 공식 s = <b>v<sub>0</sub></b>t + &frac12;a<b>t<sup>2</sup></b> 을 사용할 차례입니다. 목표 수직 이동 거리 s=2, 방금 구한 시간 <b>t</b>와 가속도 <b>a</b>를 대입하여 전기장 <b>E</b>의 값을 계산하세요."
+            ],
+            inputs: [ {id: "p5_e", label: "전기장 세기 E (N/C)", value: 0, step: 1} ],
+            targetMsg: "조건: 길이 L=20m 전기장을 통과하며 중력을 거스르고 위쪽 방향으로 정확히 2m 편향시키시오."
+        },
+        {
+            title: "[PHASE 6] 평행 직선 도선의 자기장 중첩 (상대값)",
+            desc: "5단계를 통과한 구슬이 보안 스캐너를 켰습니다. x=0 위치의 무한 직선 도선 1에는 +y 방향으로 12A의 전류가 흐릅니다. x=2m(A지점)에서 합성 자기장이 0이 되도록 x=6m 위치에 도선 2를 설치했습니다. <br><b>도선 1이 단독으로 x=8m(B지점)에 만드는 자기장의 세기를 B<sub>0</sub>라고 할 때</b>, 스캐너가 B지점에서 측정할 총 합성 자기장의 크기는 몇 B<sub>0</sub>일까요?",
+            hints: [
+                "1단계 단서 (-10점): 자기장의 세기는 전류에 비례하고 거리에 반비례합니다. 도선 1이 B(거리 8m)에 만드는 자기장이 <b>B<sub>0</sub></b>이므로, A(거리 2m)에 만드는 자기장은 거리가 &frac14;이므로 <b>4B<sub>0</sub></b>가 됩니다.",
+                "2단계 단서 (-20점): A에서 합성 자기장이 0이 되려면, 도선 2가 A(거리 4m)에 만드는 자기장도 크기가 <b>4B<sub>0</sub></b>여야 합니다. 이를 통해 도선 2가 B(거리 2m)에 만들 자기장의 세기를 비례식 구해보세요.",
+                "3단계 단서 (-50점): 도선 2가 A(거리 4m)에 <b>4B<sub>0</sub></b>를 만든다면, 거리가 절반으로 가까워진 B(거리 2m)에는 2배인 <b>8B<sub>0</sub></b>를 만듭니다. 두 도선이 B 지점에 만드는 자기장의 방향이 같은지 판별하여 최종 합산하세요."
+            ],
+            inputs: [ {id: "p6_b", label: "B지점 자기장 (배수)", value: 0, step: 1} ],
+            targetMsg: "조건: 도선 1이 단독으로 B(x=8m)에 만드는 자기장을 B₀라고 할 때, B 지점의 총 합성 자기장은 몇 B₀인지 배수(숫자)를 입력하시오."
+        },
+        {
+            title: "[PHASE 7] 도플러 효과 (파동의 진동수 변화)",
+            desc: "스캐너가 승인되자, 진동수 300Hz의 소리를 내는 사이렌 수레가 열린 문을 향해 직선으로 달려갑니다. 벽면에 부착된 소리 센서가 수레의 소리를 정확히 340Hz로 인식해야만 다음 방의 잠금이 해제됩니다. (음속은 340m/s로 가정합니다.)<br><br><b>※ 미학습 구간 특별 공식 제공:</b><br>관측 진동수 <b>f'</b> = <b>f<sub>0</sub></b> <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>v<sub>s</sub></span><span style='display:block; line-height:1.2; padding:0 2px;'>v<sub>s</sub> - v</span></span><br><span style='font-size:13px; color:#6c757d;'>(f<sub>0</sub>: 원래 진동수, v<sub>s</sub>: 소리의 속도, v: 다가오는 수레의 속력)</span>",
+            hints: [
+                "⚠️ [경고] 아직 배우지 않은 개념입니다! 힌트는 제공되지 않으며 점수만 10점 감점되니 절대 누르지 마세요.",
+                "⚠️ [경고] 힌트 없다고 했습니다! 귀중한 20점만 날아갔습니다. 본문에 제공된 공식을 활용해 직접 대입해 보세요.",
+                "⚠️ [경고] TMI 채창병의 키는 185cm 이다. MBTI는 ENTP(INTP)이며, 1997년 2월 7일 생이다."
+            ],
+            inputs: [ {id: "p7_v", label: "음원 속력 v (m/s)", value: 10, step: 1} ],
+            targetMsg: "조건: 원래 진동수 300Hz인 스피커가 다가올 때, 벽면 센서가 정확히 340Hz를 감지하도록 속력을 조절하시오. 이 문제는 힌트가 없습니다. 누르면 점수만 사라져요~"
+        },
+        {
+            title: "[PHASE 8] 볼록 렌즈 공식 (광학 초점)",
+            desc: "해제된 문틈으로 한 줄기 레이저 빛(물체)이 뿜어져 나와 초점거리 15cm인 볼록 렌즈를 통과합니다. 렌즈 뒤쪽 60cm 위치에 있는 광센서에 빛이 완벽하게 한 점으로 모여 초점을 맺으려면, 렌즈 앞 물체(광원)의 거리를 얼마로 세팅해야 할까요?<br><br><b>※ 미학습 구간 특별 공식 제공 (렌즈 방정식):</b><br><span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>1</span><span style='display:block; line-height:1.2; padding:0 2px;'>a</span></span> + <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>1</span><span style='display:block; line-height:1.2; padding:0 2px;'>b</span></span> = <span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>1</span><span style='display:block; line-height:1.2; padding:0 2px;'>f</span></span><br><span style='font-size:13px; color:#6c757d;'>(a: 렌즈와 물체 사이 거리, b: 렌즈와 센서 사이 거리, f: 초점거리)</span>",
+            hints: [
+                "⚠️ [경고] 7단계와 마찬가지로 배우지 않은 개념입니다! 힌트는 없으며 누르면 점수만 10점 깎입니다.",
+                "⚠️ [경고] 또 누르셨네요! 힌트 없이 문제 본문의 공식에 대입만 하면 됩니다. (-20점 추가 차감 💸)",
+                "⚠️ [경고] TMI 채창병은 서울지향초-서울강신중(전학)-천안봉서중-천안쌍용고-공주대 을 나왔다."
+            ],
+            inputs: [ {id: "p8_a", label: "물체 거리 a (cm)", value: 10, step: 1} ],
+            targetMsg: "조건: 렌즈 뒤 b=60cm 위치의 광센서에 빛이 완벽하게 초점을 맺도록 렌즈 앞 물체 거리를 설정하시오. 마찬가지로 배우지 않아서 힌트가 없습니다."
+        },
+        {
+            title: "[PHASE 9] 열역학 제1법칙 (기체의 등압 팽창)",
+            desc: "광센서에 모인 막대한 빛 에너지가 실린더 안의 단원자 이상 기체에 열량(Q)으로 공급되어 기체가 일정한 압력으로 팽창합니다. 10⁵ Pa의 압력을 버티는 면적 0.1m²인 피스톤을 정확히 0.5m 밀어 올리려면, 공급할 열량을 세팅해야 합니다.<br><br><b>※ 미학습 구간 특별 공식 제공:</b><br>1. 기체가 외부에 한 일: <b>W = P·ΔV</b> (압력 × 부피 변화량)<br>2. 내부 에너지 변화량: <b>ΔU = 1.5 P·ΔV</b> (즉, ΔU = 1.5 W)<br>3. 열역학 제1법칙: <b>Q = ΔU + W</b>",
+            hints: [
+                "1단계 단서 (-10점): 일정한 압력을 유지하며 부피가 변하는 등압 팽창이므로, 먼저 기체가 외부에 한 일 <b>W = P·ΔV</b>를 구하세요. 부피 변화량 <b>ΔV</b>는 (단면적 0.1m² × 상승 높이 0.5m)로 계산할 수 있습니다.",
+                "2단계 단서 (-20점): 본문에 주어진 특별 공식에 의해 내부 에너지 변화량은 기체가 한 일의 1.5배인 <b>ΔU = 1.5W</b> 가 됩니다. 이를 열역학 제1법칙 공식(Q = ΔU + W)에 대입하면 공급해야 할 총 열량 <b>Q = 2.5W</b> 라는 핵심 관계식이 나옵니다.",
+                "3단계 단서 (-50점): 1단계에서 구한 일(W)의 값에 2.5를 곱하여 실린더에 공급해야 할 최종 열량 <b>Q</b>(단위: J)를 정밀하게 계산해 보세요."
+            ],
+            inputs: [ {id: "p9_q", label: "공급 열량 Q (J)", value: 5000, step: 100} ],
+            targetMsg: "조건: 압력 10⁵ Pa, 면적 0.1m² 피스톤이 정확히 0.5m 상승하도록 열량을 조절하시오."
+        },
+        {
+            title: "[PHASE 10] 인공위성의 원궤도 우주 비행",
+            desc: "스위치가 작동하여 발사된 최종 로켓이 대기권을 뚫고 목표 우주 궤도에 도달했습니다. 행성 상수 GM = 3.6 × 10¹⁴ 이고 궤도 반지름이 10,000km(10⁷m)일 때, 인공위성이 행성으로 추락하거나 우주 미아가 되지 않고 완벽한 원궤도를 비행하기 위한 공전 속력을 입력하세요.",
+            hints: [
+                "1단계 단서 (-10점): 인공위성이 등속 원운동할 수 있는 이유는 행성이 위성을 잡아당기는 '만유인력'이 원운동의 '구심력' 역할을 완벽히 대행하기 때문입니다.",
+                "2단계 단서 (-20점): 만유인력 공식(<span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>GMm</span><span style='display:block; line-height:1.2; padding:0 2px;'>R<sup>2</sup></span></span>)과 구심력 공식(<span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>mv<sup>2</sup></span><span style='display:block; line-height:1.2; padding:0 2px;'>R</span></span>)을 같다고 놓으면, 위성의 질량 <b>m</b>과 반지름 <b>R</b> 하나가 약분되면서 공전 속도 공식 v = &radic;(<span style='display:inline-block; vertical-align:middle; text-align:center; font-size:14px; margin:0 4px;'><span style='display:block; border-bottom:1.5px solid #084298; line-height:1.2; padding:0 2px;'>GM</span><span style='display:block; line-height:1.2; padding:0 2px;'>R</span></span>) 이 유도됩니다.",
+                "3단계 단서 (-50점): 행성 상수 <b>GM</b>과 목표 궤도 반지름 <b>R</b> = 10<sup>7</sup>m를 공식에 대입하여 미터 매 초(m/s) 단위를 구한 뒤, 입력 단위인 km/s에 맞춰 소수점을 변환하세요."
+            ],
+            inputs: [ {id: "p10_v", label: "위성 속력 v (km/s)", value: 3.0, step: 0.1} ],
+            targetMsg: "조건: 행성 상수 GM = 3.6×10¹⁴, 궤도 반지름 R = 10,000km 일 때 위성이 완벽한 원궤도를 도는 속력을 입력하시오."
+        }
+    ];
+
+function requestAuth() {
+        const idInput = document.getElementById('studentId') ? document.getElementById('studentId').value.trim() : "Guest";
+        const nameInput = document.getElementById('studentName') ? document.getElementById('studentName').value.trim() : "Student";
+        const statusEl = document.getElementById('loginStatus');
+        const loginBtn = document.getElementById('loginBtn');
+
+        if (statusEl && (!idInput || !nameInput)) {
+            statusEl.innerText = "❌ 학번과 이름을 모두 입력해주세요.";
+            statusEl.style.color = "#dc3545";
+            return;
+        }
+
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.innerText = "인증 중...";
+        }
+        if (statusEl) statusEl.innerText = "⏳ 서버 명단 대조 중...";
+
+        // 1. 앱스스크립트 환경일 때 (구글 시트 연동)
+        if (typeof google !== 'undefined' && google.script) {
+            google.script.run
+                .withSuccessHandler(function(response) {
+                    if(response.success) {
+                        currentUser.id = idInput;
+                        currentUser.name = nameInput;
+                        
+                        gameData.score = response.score;
+                        if(document.getElementById('scoreDisplay')) document.getElementById('scoreDisplay').innerText = gameData.score;
+                        saveData(); 
+
+                        if(statusEl) {
+                            statusEl.innerText = "✅ 인증 완료! 실험실 입장.";
+                            statusEl.style.color = "#198754";
+                        }
+                        setTimeout(() => {
+                            let overlay = document.getElementById('loginOverlay');
+                            if(overlay) {
+                                overlay.style.opacity = "0";
+                                setTimeout(() => overlay.style.display = "none", 500);
+                            }
+                        }, 1000);
+                    } else {
+                        if(statusEl) {
+                            statusEl.innerText = "❌ 학번/이름이 명단과 일치하지 않습니다.";
+                            statusEl.style.color = "#dc3545";
+                        }
+                        if(loginBtn) {
+                            loginBtn.disabled = false;
+                            loginBtn.innerText = "인증 및 입장";
+                        }
+                    }
+                })
+                .withFailureHandler(function() {
+                    if(statusEl) statusEl.innerText = "❌ 서버 연결 오류!";
+                    if(loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.innerText = "인증 및 입장";
+                    }
+                }).checkAuth(idInput, nameInput); // 🔥 백엔드 함수 호출
+        } 
+        // 2. 그냥 HTML 파일로 실행했을 때 (오프라인 모드 프리패스)
+        else {
+            currentUser.id = idInput; 
+            currentUser.name = nameInput;
+            
+            if(statusEl) {
+                statusEl.innerText = "✅ 오프라인 모드로 입장합니다!";
+                statusEl.style.color = "#198754";
+            }
+            
+            setTimeout(() => {
+                let overlay = document.getElementById('loginOverlay');
+                if(overlay) {
+                    overlay.style.opacity = "0";
+                    setTimeout(() => overlay.style.display = "none", 500);
+                }
+            }, 1000);
+        }
+    }
+
+    function initUI() {
+        const area = document.getElementById('controls-area');
+        for(let i=1; i<=10; i++) {
+            let d = phaseData[i];
+            
+            // 머신러닝 동적 힌트 박스 (처음엔 숨김)
+            let hintHTML = `<div id="dynamic_hint_${i}" class="hint-box" style="display:none; background-color:#fff3cd; color:#856404; border-color:#ffeeba;"></div>`;
+
+            let html = `
+            <div id="phase${i}" class="phase-panel ${i===1?'active':''}">
+                <div class="phase-title">${d.title}</div>
+                <div class="desc-box">📜 <b>상황:</b> ${d.desc}</div>
+                <div class="target-box">🎯 <b>미션:</b> ${d.targetMsg}</div>
+                ${hintHTML}
+                <div class="control-panel">
+                    <div class="input-row">
+                        ${d.inputs.map(inp => `<div class="input-box"><label>${inp.label}</label><input type="number" id="${inp.id}" value="${inp.value}" step="${inp.step}" oninput="updateStateAndDraw()"></div>`).join('')}
+                    </div>
+                    <button id="btn${i}" onclick="runPhase(${i})">🚀 시스템 가동 (오답 시 -10점)</button>
+                </div>
+            </div>`;
+            area.innerHTML += html;
+        }
+        
+        
+    } 
+
+    function useHint(p) {
+        let used = gameData.hintsUsed[p];
+        if(used >= 3) return;
+
+        let costs = [10, 20, 50]; 
+        let cost = costs[used];
+
+        if(gameData.score < cost) {
+            alert("점수가 부족하여 힌트를 볼 수 없습니다!");
+            return;
+        }
+
+        gameData.score -= cost;
+        gameData.hintsUsed[p]++;
+        used = gameData.hintsUsed[p];
+
+        document.getElementById(`hint_box_${p}_${used}`).style.display = "block";
+        document.getElementById(`btn_hint_${p}`).innerText = `🔍 힌트 보기 (현재 ${used}/3)`;
+        
+        if(used >= 3) document.getElementById(`btn_hint_${p}`).style.display = "none";
+
+        saveData();
+    }
+
+    function setStatus(msg, color) { 
+        document.getElementById('statusMessage').innerHTML = msg; 
+        document.getElementById('statusMessage').style.color = color; 
+    }
+
+    function switchPhase(p) {
+        // 자유 이동이 가능하도록 이전 단계 잠금 차단 로직을 비활성화했습니다.
+        /*
+        if (!gameData.maxPhase) gameData.maxPhase = 1;
+        if (p > gameData.maxPhase) {
+            setStatus("🔒 이전 단계를 먼저 클리어해야 접근할 수 있습니다.", "#dc3545");
+            return; 
+        }
+        */
+
+        // 상단 탭 버튼 활성화 변경
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        const activeTab = document.getElementById(`tab${p}`);
+        if(activeTab) activeTab.classList.add('active');
+
+        // 패널 전환
+        document.querySelectorAll('.phase-panel').forEach(el => el.classList.remove('active'));
+        document.getElementById(`phase${p}`).classList.add('active');
+
+        // 진행률 바 업데이트
+        let percent = (p / 10) * 100;
+        if (document.getElementById('progressText')) document.getElementById('progressText').innerText = percent + "%";
+        if (document.getElementById('currentPhaseNum')) document.getElementById('currentPhaseNum').innerText = p;
+        if (document.getElementById('progressFill')) document.getElementById('progressFill').style.width = percent + "%";
+
+        currentPhase = p;
+        isAnimating = false;
+        cancelAnimationFrame(animId);
+        
+        let runBtn = document.getElementById(`btn${p}`);
+        if(runBtn) runBtn.disabled = false; 
+
+        setStatus("상단 조건에 맞춰 수치를 입력하고 가동하세요.", "#6c757d");
+        
+        initState(p);
+        drawScene(p);
+    }
+    
+    function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+    function updateStateAndDraw() {
+        if(isAnimating) return;
+        initState(currentPhase);
+        drawScene(currentPhase);
+    }
+
+    function initState(p) {
+        state = { p: p, t: 0 };
+        if(!phaseData[p]) return;
+        if(p===1) { state.k=getVal('p1_k'); state.x=getVal('p1_x'); state.ang=getVal('p1_a')*Math.PI/180; state.v0=state.x*Math.sqrt(state.k/m); state.bx=100; state.by=350; }
+        if(p===2) { state.H=getVal('p2_h'); state.startY=350-state.H*10; if(state.startY<30) state.startY=30; state.prog=0; state.v2=Math.sqrt(p2_v1*p2_v1+2*g*state.H); }
+        if(p===3) { state.rad=getVal('p3_a')*Math.PI/180; state.angle=0; state.isCorr = Math.abs(Math.tan(state.rad) - 1.25)<0.05;}
+        if(p===4) { state.M=getVal('p4_m'); state.V=25/(1+state.M); state.bx=50; state.st=0; state.size=20+Math.min(state.M*5,40); }
+        if(p===5) { state.E=getVal('p5_e'); state.bx=50; state.by=200; }
+        if(p===6) { state.ans=getVal('p6_b'); state.scannerX = 100; } 
+        if(p===7) { state.v=getVal('p7_v'); state.bx=100; state.f = 300*(340/(340-state.v)); }
+        if(p===8) { state.a=getVal('p8_a'); }
+        if(p===9) { state.Q=getVal('p9_q'); state.dh=(state.Q/2.5)/10000; state.py=230; }
+        if(p===10){ state.v=getVal('p10_v'); state.angle=0; state.rad=150; }
+    }
+
+    function drawScene(p) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if(p===1) {
+            ctx.fillStyle = "#ced4da"; ctx.fillRect(0, 350, canvas.width, 50); 
+            
+            // 타겟 깔때기 (랜덤 위치 반영, 1m = 30px 비율 적용)
+            let tx = 100 + p1_targetX * 30;
+            let ty = 350 - p1_targetY * 30;
+            ctx.fillStyle = "#d63384"; 
+            ctx.beginPath(); ctx.moveTo(tx-25, ty); ctx.lineTo(tx+25, ty); ctx.lineTo(tx+10, ty+20); ctx.lineTo(tx-10, ty+20); ctx.fill();
+            ctx.fillStyle = "#198754"; ctx.font="bold 15px Arial"; ctx.fillText(`TARGET: ${p1_targetV} m/s`, tx-55, ty-15);
+            // 🔥 타겟 높이 및 거리 시각적 표시 (점선과 텍스트)
+            ctx.strokeStyle = "rgba(108, 117, 125, 0.6)"; 
+            ctx.lineWidth = 2; 
+            ctx.setLineDash([4, 4]);
+            
+            // 바닥으로 내리는 수직선 (높이)
+            ctx.beginPath(); ctx.moveTo(tx, ty + 20); ctx.lineTo(tx, 350); ctx.stroke();
+            // 대포 쪽으로 가는 수평선 (거리)
+            ctx.beginPath(); ctx.moveTo(100, 350); ctx.lineTo(tx, 350); ctx.stroke();
+            
+            ctx.setLineDash([]); // 점선 원상복구 설정
+            
+            ctx.fillStyle = "#495057"; ctx.font = "bold 14px Arial";
+            ctx.fillText(`높이 ${p1_targetY}m`, tx + 8, ty + (350 - ty)/2); // 세로선 옆에 높이 표시
+            ctx.fillText(`거리 ${p1_targetX}m`, 100 + (tx - 100)/2 - 30, 340); // 가로선 위에 거리 표시
+
+            // 🔥 발사 전 예측 궤도는 숨기고, 이전 시도들의 누적 궤적(Ghost Trails) 그리기
+            ctx.lineWidth = 1.5; 
+            phaseGhosts[1].forEach((ghost, index) => {
+                ctx.beginPath();
+                // 나중에 쏜 최신 궤적일수록 점점 진해지게 시각화
+                ctx.strokeStyle = `rgba(13, 110, 253, ${0.1 + (index / phaseGhosts[1].length) * 0.4})`; 
+                ctx.setLineDash([3, 3]);
+                for(let t = 0; t <= 3; t += 0.05) {
+                    let trX = 100 + (ghost.v0 * Math.cos(ghost.ang) * t) * 30;
+                    let trY = 350 - ((ghost.v0 * Math.sin(ghost.ang) * t) - 5 * t * t) * 30;
+                    if(t === 0) ctx.moveTo(trX, trY);
+                    else ctx.lineTo(trX, trY);
+                    if(trY > 400) break; 
+                }
+                ctx.stroke(); 
+            });
+            ctx.setLineDash([]); 
+
+            ctx.save(); ctx.translate(100, 350); ctx.rotate(-state.ang); 
+            ctx.fillStyle = "#6c757d"; ctx.fillRect(-15, -15, 50, 30); ctx.restore();
+            
+            ctx.beginPath(); ctx.arc(state.bx, state.by, 8, 0, Math.PI*2); ctx.fillStyle = "#198754"; ctx.fill();
+// 좌측 상단에 실시간 물리량 고정 표시
+            let displayV = state.currentV ? state.currentV : state.v0;
+            let currentH = (350 - state.by) / 30; // 현재 높이(m) 계산 (1m = 30px)
+            let ek = 0.5 * m * displayV * displayV; // 운동 에너지 (1/2 * m * v^2)
+            let ep = m * g * currentH; // 위치 에너지 (m * g * h)
+            
+            ctx.fillStyle = "#212529";
+            ctx.font = "bold 16px Arial";
+            ctx.fillText(`🚀 현재 속력: ${displayV.toFixed(2)} m/s`, 20, 30);
+            ctx.fillStyle = "#d63384";
+            ctx.fillText(`🔥 운동 에너지: ${ek.toFixed(2)} J`, 20, 55);
+            ctx.fillStyle = "#0d6efd";
+            ctx.fillText(`⚡ 위치 에너지: ${ep.toFixed(2)} J`, 20, 80);
+        }
+        else if(p===2) {
+            ctx.strokeStyle = "#495057"; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(50, state.startY); ctx.lineTo(750, 350); ctx.lineTo(950, 350); ctx.stroke();
+            let bx = state.prog<=1 ? 50+700*state.prog : 750+(state.prog-1)*500;
+            let by = state.prog<=1 ? state.startY+(350-state.startY)*state.prog : 350;
+            if(!isAnimating) { bx=50; by=state.startY; }
+            ctx.beginPath(); ctx.arc(bx, by-10, 8, 0, Math.PI*2); ctx.fillStyle = "#198754"; ctx.fill();
+            ctx.fillStyle = "#198754"; ctx.font="bold 16px Arial"; ctx.fillText(`TARGET: ${p2_v2} m/s`, 780, 380);
+            // 좌측 상단에 실시간 물리량 고정 표시 (2단계)
+            let displayV = state.currentV !== undefined ? state.currentV : p2_v1; // 2단계 초기 랜덤 속력 적용
+            let currentH = state.prog <= 1 ? state.H * (1 - Math.max(0, state.prog)) : 0; // 남은 높이
+            if (!isAnimating) currentH = state.H;
+
+            let ek = 0.5 * m * displayV * displayV; // 운동 에너지
+            let ep = m * g * currentH;              // 위치 에너지
+
+            ctx.fillStyle = "#212529";
+            ctx.font = "bold 16px Arial";
+            ctx.fillText(`🚀 현재 속력: ${displayV.toFixed(2)} m/s`, 20, 30);
+            ctx.fillStyle = "#d63384";
+            ctx.fillText(`🔥 운동 에너지: ${ek.toFixed(2)} J`, 20, 55);
+            ctx.fillStyle = "#0d6efd";
+            ctx.fillText(`⚡ 위치 에너지: ${ep.toFixed(2)} J`, 20, 80);
+        }
+        else if(p===3) {
+            ctx.strokeStyle = "#dee2e6"; ctx.lineWidth = 40; ctx.beginPath(); ctx.arc(350, 200, 120, 0, Math.PI, true); ctx.stroke();
+            let bx = 350+120*Math.cos(state.angle), by = 200-120*Math.sin(state.angle);
+            if(!state.isCorr && state.angle>Math.PI/6) { bx -= (state.angle-Math.PI/6)*100; by -= (state.angle-Math.PI/6)*100; }
+            if(!isAnimating) { bx=470; by=200; }
+            ctx.beginPath(); ctx.arc(bx, by, 8, 0, Math.PI*2); ctx.fillStyle="#198754"; ctx.fill();
+            
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(520, 50, 400, 300); ctx.strokeStyle = "#adb5bd"; ctx.strokeRect(520, 50, 400, 300);
+            let N_hor = 10 * Math.tan(state.rad);
+            ctx.fillStyle = "#dc3545"; ctx.font="15px Arial"; ctx.fillText(`▶ 발생한 수평 구심력: ${N_hor.toFixed(2)} N`, 540, 100);
+            
+            ctx.save(); ctx.translate(720, 240); ctx.rotate(-state.rad);
+            ctx.fillStyle = "#ced4da"; ctx.fillRect(-100, 0, 200, 8); ctx.fillStyle = "#d63384"; ctx.fillRect(-20, -40, 40, 40); ctx.restore();
+            
+            ctx.strokeStyle = "#0d6efd"; ctx.lineWidth = 3; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(720, 220); ctx.lineTo(720 - 125, 220); ctx.stroke(); ctx.setLineDash([]);
+            ctx.strokeStyle = "#dc3545"; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(720, 220); ctx.lineTo(720 - N_hor * 10, 220); ctx.stroke();
+        }
+        else if(p===4) {
+            ctx.strokeStyle = "#495057"; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(0, 300); ctx.lineTo(300, 300); ctx.stroke();
+            ctx.fillStyle = "#e9ecef"; ctx.fillRect(300, 300, 650, 20);
+            ctx.strokeStyle = "#198754"; ctx.lineWidth=3; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(700, 200); ctx.lineTo(700, 300); ctx.stroke(); ctx.setLineDash([]);
+            
+            let bx = state.st===0 ? state.bx : state.bx-8;
+            ctx.beginPath(); ctx.arc(bx, state.st===0 ? 292 : 300-state.size/2, 8, 0, Math.PI*2); ctx.fillStyle="#0d6efd"; ctx.fill();
+            ctx.fillStyle = "#d63384"; ctx.fillRect(state.st===0 ? 300 : state.bx, 300-state.size, state.size, state.size);
+        }
+        else if(p===5) {
+            ctx.fillStyle = "#0d6efd"; ctx.fillRect(100, 150, 600, 10); 
+            ctx.fillStyle = "#dc3545"; ctx.fillRect(100, 250, 600, 10); 
+            
+            ctx.fillStyle = "#6c757d"; ctx.font = "bold 14px Arial"; 
+            ctx.fillText("L = 20m (중력 무시)", 330, 140);
+            
+            ctx.strokeStyle = "#198754"; ctx.setLineDash([5,5]); 
+            ctx.beginPath(); ctx.moveTo(700, 170); ctx.lineTo(850, 170); ctx.stroke(); ctx.setLineDash([]);
+            
+            ctx.fillStyle = "#198754"; ctx.fillRect(720, 167, 100, 6); 
+            ctx.fillText("TARGET: 2m 상향 편향", 720, 155);
+
+            ctx.beginPath(); ctx.arc(state.bx, state.by, 8, 0, Math.PI*2); ctx.fillStyle="#d63384"; ctx.fill();
+            ctx.fillStyle = "#212529"; ctx.fillText("+0.2C", state.bx - 15, state.by - 15);
+        }
+        else if(p===6) { 
+            ctx.strokeStyle = "#dee2e6"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(50, 250); ctx.lineTo(900, 250); ctx.stroke();
+            
+            ctx.fillStyle = "#ffc107"; ctx.fillRect(195, 100, 10, 300);
+            ctx.fillStyle = "#212529"; ctx.font="bold 16px Arial"; ctx.fillText("I₁=12A", 175, 90); ctx.fillText("x=0", 185, 420);
+            
+            ctx.fillStyle = "#ffc107"; ctx.fillRect(495, 100, 10, 300);
+            ctx.fillStyle = "#212529"; ctx.fillText("I₂=?", 485, 90); ctx.fillText("x=6m", 480, 420);
+            
+            ctx.fillStyle = "#dc3545"; ctx.beginPath(); ctx.arc(300, 250, 6, 0, Math.PI*2); ctx.fill(); ctx.fillText("A (B=0)", 270, 275);
+            ctx.fillStyle = "#0d6efd"; ctx.beginPath(); ctx.arc(600, 250, 6, 0, Math.PI*2); ctx.fill(); ctx.fillText("B (Target)", 570, 275);
+            
+            ctx.fillStyle = "#198754"; ctx.fillRect(state.scannerX - 15, 235, 30, 30);
+            ctx.fillStyle = "#ffffff"; ctx.font="12px Arial"; ctx.fillText("SCAN", state.scannerX - 14, 255);
+        }
+        else if(p===7) { 
+            ctx.fillStyle = "#495057"; ctx.fillRect(800, 100, 20, 200); 
+            ctx.fillStyle = "#198754"; ctx.font="bold 16px Arial"; ctx.fillText("SENSOR: 목표 340Hz", 600, 90);
+            ctx.fillStyle = "#d63384"; ctx.fillRect(state.bx, 180, 60, 40);
+        }
+        else if(p===8) { 
+            ctx.strokeStyle = "#adb5bd"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, 200); ctx.lineTo(950, 200); ctx.stroke(); 
+            ctx.beginPath(); ctx.moveTo(500, 100); ctx.quadraticCurveTo(530, 200, 500, 300); ctx.quadraticCurveTo(470, 200, 500, 100); ctx.fillStyle = "rgba(13, 110, 253, 0.3)"; ctx.fill();
+            ctx.fillStyle = "#dc3545"; ctx.fillRect(800, 180, 10, 40); ctx.fillText("SENSOR", 820, 205);
+            let objX = 500 - state.a*5; ctx.fillStyle = "#ffc107"; ctx.fillRect(objX, 150, 10, 50);
+            if(isAnimating) {
+                let b_calc = (15*state.a)/(state.a-15); 
+                ctx.strokeStyle = "#ffc107"; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(objX, 150); ctx.lineTo(500, 150); ctx.lineTo(800, 200+(150-200)/(b_calc*5)*300); ctx.stroke(); 
+            }
+        }
+        else if(p===9) { 
+            ctx.strokeStyle = "#495057"; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(400, 100); ctx.lineTo(400, 350); ctx.lineTo(550, 350); ctx.lineTo(550, 100); ctx.stroke();
+            ctx.fillStyle = "rgba(220, 53, 69, 0.4)"; ctx.fillRect(405, state.py+20, 140, 350-state.py-20);
+            ctx.fillStyle = "#6c757d"; ctx.fillRect(405, state.py, 140, 20);
+            ctx.strokeStyle = "#198754"; ctx.lineWidth=2; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(350, 130); ctx.lineTo(600, 130); ctx.stroke(); ctx.setLineDash([]);
+        }
+        else if(p===10) { 
+            ctx.fillStyle = "#0dcaf0"; ctx.beginPath(); ctx.arc(475, 200, 40, 0, Math.PI*2); ctx.fill(); 
+            ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.beginPath(); ctx.arc(475, 200, 150, 0, Math.PI*2); ctx.stroke(); 
+            let bx = 475 + state.rad * Math.cos(state.angle), by = 200 + state.rad * Math.sin(state.angle);
+            ctx.fillStyle = "#ffc107"; ctx.beginPath(); ctx.arc(bx, by, 6, 0, Math.PI*2); ctx.fill(); 
+        }
+    }
+
+    function runPhase(p) {
+        if(isAnimating) return; 
+
+        if(gameData.score < 10) {
+            alert("점수가 10점 미만이라 시스템을 가동할 수 없습니다!");
+            return;
+        }
+
+        isAnimating = true;
+        document.getElementById(`btn${p}`).disabled = true;
+        initState(p);
+
+        function animate() {
+            if(!isAnimating) return;
+            drawScene(p);
+            
+            if(p===1) {
+                state.t += 0.04; 
+                let prev_bx = state.bx, prev_by = state.by;
+                state.bx = 100 + (state.v0 * Math.cos(state.ang) * state.t) * 30; 
+                let currentVy = (state.v0 * Math.sin(state.ang)) - g * state.t; 
+                state.by = 350 - ((state.v0 * Math.sin(state.ang) * state.t) - 0.5 * g * state.t * state.t) * 30;
+                let currentV = Math.sqrt(Math.pow(state.v0 * Math.cos(state.ang), 2) + Math.pow(currentVy, 2));
+                state.currentV = currentV;
+                let tx = 100 + p1_targetX * 30;
+                let ty = 350 - p1_targetY * 30;
+
+                // 🔥 충돌 및 화면 이탈 판정 (Loss 오차 계산)
+                if (state.by > 400 || state.bx > canvas.width || (state.by >= ty && state.by <= ty + 20 && Math.abs(state.bx - tx) < 25)) {
+                    
+                    // 1. 궤적 기록 및 시도 횟수 증가
+                    phaseGhosts[1].push({ v0: state.v0, ang: state.ang });
+                    phaseAttempts[1]++;
+
+                    // 2. 오차(Loss) 피드백 정밀 연산
+                    let isSuccess = false;
+                    let errorMsg = "";
+                    let vx = state.v0 * Math.cos(state.ang);
+                    let t_at_tx = vx > 0 ? p1_targetX / vx : 999;
+                    let y_at_tx_real = (state.v0 * Math.sin(state.ang) * t_at_tx) - 0.5 * g * t_at_tx * t_at_tx; 
+                    let heightError = y_at_tx_real - p1_targetY;
+
+                    if (Math.abs(state.bx - tx) < 25 && state.by >= ty && state.by <= ty + 20) {
+                        // 깔때기 안에 들어간 경우 -> 궤적 방향과 속도 체크
+                        if (prev_by > ty) {
+                            errorMsg = `[오차] 아래에서 위로 진입했습니다. 포물선의 '하강 궤적'으로 꽂혀야 합니다.`;
+                        } else if (Math.abs(currentV - p1_targetV) > 0.1) {
+                            let vError = currentV - p1_targetV;
+                            errorMsg = `[오차] 궤도는 완벽합니다! 하지만 타겟 도달 속력이 목표보다 ${Math.abs(vError).toFixed(1)}m/s ${vError > 0 ? '빠릅니다' : '느립니다'}.`;
+                        } else {
+                            isSuccess = true;
+                        }
+                    } else {
+                        // 깔때기를 빗나간 경우 -> 고도 오차 피드백
+                        if (heightError > 0) {
+                            errorMsg = `[오차] 목표 거리(${p1_targetX}m)에서 타겟보다 ${Math.abs(heightError).toFixed(1)}m 높게 날았습니다.`;
+                        } else {
+                            errorMsg = `[오차] 목표 거리(${p1_targetX}m) 도달 전에 ${Math.abs(heightError).toFixed(1)}m 낮게 떨어졌습니다.`;
+                        }
+                    }
+
+                    // 3. 동적 힌트 업데이트 함수 호출
+                    updateDynamicHint(1, phaseAttempts[1]);
+
+                    checkResult(1, isSuccess, errorMsg);
+                    return; 
+                }
+            }
+              else if(p===2) {
+                // 내려온 높이에 따른 현재 속력 실시간 연산 (역학적 에너지 보존: v^2 = v0^2 + 2gh)
+                let droppedH = state.prog <= 1 ? state.H * state.prog : state.H;
+                state.currentV = Math.sqrt((p2_v1 * p2_v1) + 2 * g * droppedH); 
+                
+                // 🔥 초기 속력이 0일 때 멈추는 현상 방지 (중력에 의한 초기 미세 가속 부여)
+                let moveStep = state.currentV * 0.0015;
+                if (moveStep === 0) moveStep = 0.002; 
+                
+                state.prog += moveStep;
+                
+                if(state.prog > 1 + 250/500) { checkResult(2, Math.abs(state.v2 - p2_v2) <= 0.05); return; }
+            }
+            else if(p===3) {
+                state.angle += 0.03; 
+                if(state.angle >= Math.PI) { checkResult(3, state.isCorr); return; }
+            }
+            else if(p===4) {
+                let dt = 0.02; 
+                
+                if(state.st === 0) {
+                    state.bx += 25 * dt * 50; 
+                    
+                    if(state.bx >= 300) {
+                        state.bx = 300;
+                        state.st = 1;
+                        state.t = 0; 
+                    }
+                } 
+                else {
+                    state.t += dt;
+                    let a = -4; 
+                    let cv = state.V + a * state.t; 
+                    
+                    if(cv <= 0) {
+                        let stopDist = (state.V * state.V) / 8; 
+                        state.bx = 300 + (stopDist * 50);
+                        checkResult(4, Math.abs(state.bx - 700) <= 2);
+                        return;
+                    }
+                    
+                    let displacement = state.V * state.t + 0.5 * a * state.t * state.t;
+                    state.bx = 300 + (displacement * 50);
+                }
+            }
+            else if(p===5) { 
+                state.t += 0.02; 
+                state.bx = 50 + (10 * state.t) * 30; 
+                
+                if(state.bx > 100) { 
+                    let t_f = (state.bx - 100) / 300; 
+                    let a = (0.2 * state.E) / 1;      
+                    let y_disp = 0.5 * a * t_f * t_f;
+                    state.by = 200 - y_disp * 15; 
+                } 
+                if(state.bx > 700) { 
+                    checkResult(5, Math.abs(state.by - 170) <= 2); 
+                    return; 
+                } 
+            }
+            else if(p===6) { 
+                state.scannerX += 8;
+                if(state.scannerX >= 600) {
+                    state.scannerX = 600; 
+                    drawScene(p);
+                    checkResult(6, Math.abs(state.ans - 9) <= 0.1); 
+                    return; 
+                }
+            }
+            else if(p===7) { 
+                state.bx += state.v * 0.1; 
+                if(state.bx > 600) { checkResult(7, Math.abs(state.f - 340)<=0.5); return; }
+            }
+            else if(p===8) { 
+                state.t += 0.05; 
+                if(state.t > 1) { let b_calc = (15*state.a)/(state.a-15); checkResult(8, Math.abs(b_calc - 60)<=0.5); return; }
+            }
+            else if(p===9) { 
+                state.t += 0.02; 
+                let targetY = 230 - state.dh * 200; 
+                state.py -= 2; 
+                
+                if(state.py <= targetY) {
+                    state.py = targetY;
+                }
+                
+                if(state.py <= targetY && state.t > 1) { 
+                    checkResult(9, Math.abs(state.dh - 0.5) <= 0.01); 
+                    return; 
+                }
+            }
+            else if(p===10) { 
+                state.angle += 0.05; 
+                if(state.angle > Math.PI*2.5) { checkResult(10, Math.abs(state.v - 6.0)<=0.05); return; }
+            }
+
+            animId = requestAnimationFrame(animate);
+        } animate();
+    }
+
+    function checkResult(p, isSuccess, errMsg = "") {
+        isAnimating = false;
+        let runBtn = document.getElementById(`btn${p}`);
+        if(runBtn) runBtn.disabled = false; 
+        
+        if(isSuccess) {
+            setStatus(`🎉 [페이즈 ${p}] CLEAR! 완벽한 물리적 수치입니다. (감점 없음)`, "#198754");
+            
+            if (!gameData.maxPhase) gameData.maxPhase = 1;
+            if (p >= gameData.maxPhase) {
+                gameData.maxPhase = p + 1;
+                saveData(); 
+            }
+
+            if (typeof currentUser !== 'undefined' && currentUser.id !== "" && typeof google !== 'undefined' && google.script) {
+                google.script.run.markSystemCleared(currentUser.id, currentUser.name, p);
+            }
+
+            if(p < 10) {
+                setTimeout(() => switchPhase(p+1), 2000);
+            } else {
+                setStatus("🏆 SYSTEM ALL CLEAR! 데이터 전송 중...", "#d63384");
+                
+                setTimeout(() => {
+                    Array.from(document.body.children).forEach(child => {
+                        if (child.id !== 'clearScreen') {
+                            child.style.display = 'none';
+                        }
+                    });
+                    
+                    document.getElementById('finalScoreDisplay').innerText = gameData.score;
+                    let clearScreen = document.getElementById('clearScreen');
+                    clearScreen.style.display = 'flex';
+                    setTimeout(() => clearScreen.style.opacity = '1', 50);
+                }, 2000);
+            }
+        } else {
+            gameData.score -= 10;
+            saveData();
+
+            let errorText = errMsg ? `❌ [페이즈 ${p}] ERROR: ${errMsg} (-10점)` : `❌ [페이즈 ${p}] ERROR: 궤도 이탈 또는 조건 불일치. (-10점)`;
+            setStatus(errorText, "#dc3545");
+            
+            setTimeout(() => {
+                if(currentPhase === p && !isAnimating) {
+                    // 🔥 1단계 오답 시 문제 변수 리롤 및 텍스트/캔버스 업데이트
+                    
+                    if (p === 2) {
+                        p2_v1 = Math.floor(Math.random() * 11);
+                        p2_v2 = p2_v1 + Math.floor(Math.random() * 11) + 15;
+                        
+                        document.querySelector('#phase2 .desc-box').innerHTML = `📜 <b>상황:</b> 1단계 깔때기를 무사히 통과한 구슬이 ${p2_v1}m/s의 속력으로 마찰이 없는 비탈길에 진입합니다. 비탈길 바닥에 있는 스피드 게이트를 통과하려면 속력이 정확히 ${p2_v2}m/s가 되어야 합니다.`;
+                        document.querySelector('#phase2 .target-box').innerHTML = `🎯 <b>미션:</b> 조건: 초기 진입 속도(${p2_v1}m/s) 기준, 바닥 타겟 속도(${p2_v2}m/s)에 정확히 도달하시오.`;
+                        
+                        let hint2 = document.getElementById('hint_box_2_2');
+                        if (hint2) hint2.innerHTML = `2단계 단서 (-20점): 빗면 진입 속도(<b>v<sub>1</sub></b>=${p2_v1}m/s)일 때의 운동 에너지와 높이 <b>H</b>에서의 위치 에너지가 더해져 바닥 타겟 속도(<b>v<sub>2</sub></b>=${p2_v2}m/s)의 운동 에너지로 전환되는 식을 세우세요.`;
+                    }
+
+                    initState(p);
+                    drawScene(p);
+                    setStatus(p === 2 ? "⚠️ 목표 수치가 변경되었습니다! 다시 계산하고 시도하세요." : "수치를 미세 조정하여 다시 시도하세요.", "#dc3545");
+                }
+            }, 1500);
+        }
+    }
+
+    window.onload = () => { 
+        loadData(); 
+        initUI(); 
+        switchPhase(1); 
+    };
+</script>
+
+</body>
+</html>
