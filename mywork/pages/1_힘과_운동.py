@@ -19,12 +19,18 @@ if not st.session_state.get('logged_in', False):
 # 🛠️ 구글 시트 연동 세팅
 # =====================================================================
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-
-current_folder = os.path.dirname(os.path.abspath(__file__))
-parent_folder = os.path.dirname(current_folder) 
-key_path = os.path.join(parent_folder, "credentials.json")
-
-creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
+import json
+# 🌟 똑똑한 열쇠 탐색기 (클라우드와 내 컴퓨터 모두 호환)
+if "google_creds" in st.secrets:
+    # 1. 인터넷(스트림릿)에서 실행될 때: 비밀 금고에서 열쇠를 꺼냅니다.
+    creds_dict = json.loads(st.secrets["google_creds"])
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+else:
+    # 2. 내 컴퓨터(VS Code)에서 실행될 때: 기존처럼 파일을 찾습니다.
+    current_folder = os.path.dirname(os.path.abspath(__file__))
+    parent_folder = os.path.dirname(current_folder) 
+    key_path = os.path.join(parent_folder, "credentials.json")
+    creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("2026 물리학")
 result_sheet = spreadsheet.worksheet("1단원_결과")
