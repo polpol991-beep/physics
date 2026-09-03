@@ -10,7 +10,14 @@ st.set_page_config(page_title="1. 힘과 운동", page_icon="🚀", layout="wide
 # 🛠️ 구글 시트 연동 세팅
 # =====================================================================
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+import os
+
+# 👇 현재 방(pages 폴더)에서 한 칸 밖(mywork 폴더)으로 나가서 열쇠를 찾는 마법의 코드입니다.
+current_folder = os.path.dirname(os.path.abspath(__file__))
+parent_folder = os.path.dirname(current_folder) # 상위 폴더로 이동!
+key_path = os.path.join(parent_folder, "credentials.json")
+
+creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
 client = gspread.authorize(creds)
 spreadsheet = client.open("2026 물리학")
 result_sheet = spreadsheet.worksheet("1단원_결과") # 👈 '1단원_결과' 탭에 연결
