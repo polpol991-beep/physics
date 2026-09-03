@@ -4,7 +4,8 @@ import random
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
-
+current_folder = os.path.dirname(os.path.abspath(__file__))
+parent_folder = os.path.dirname(current_folder) 
 st.set_page_config(page_title="1. 힘과 운동", page_icon="🚀", layout="wide")
 
 # =====================================================================
@@ -27,8 +28,6 @@ if "google_creds" in st.secrets:
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 else:
     # 2. 내 컴퓨터(VS Code)에서 실행될 때: 기존처럼 파일을 찾습니다.
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    parent_folder = os.path.dirname(current_folder) 
     key_path = os.path.join(parent_folder, "credentials.json")
     creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
 client = gspread.authorize(creds)
