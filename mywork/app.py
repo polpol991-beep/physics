@@ -6,7 +6,10 @@ st.set_page_config(page_title="물리 학습 시스템", page_icon="🏫")
 
 # 1. 구글 시트 연결 (DB 역할)
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+import os
+current_folder = os.path.dirname(os.path.abspath(__file__))
+key_path = os.path.join(current_folder, "credentials.json")
+creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
 client = gspread.authorize(creds)
 
 # 🌟 여기에 만든 구글 시트 파일 이름을 정확히 적으세요!
