@@ -5,7 +5,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
 import random  # 🌟 랜덤 출제를 위해 추가
-
+current_folder = os.path.dirname(os.path.abspath(__file__))
+parent_folder = os.path.dirname(current_folder)
 st.set_page_config(page_title="수행평가: 돌림힘과 평형", page_icon="⚖️", layout="wide")
 
 # =====================================================================
