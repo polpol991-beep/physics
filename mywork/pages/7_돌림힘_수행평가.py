@@ -170,7 +170,7 @@ if st.button("HiddenPenalty", key="hidden_penalty"):
         st.rerun()
 
 # 자바스크립트를 이용해 화면에 렌더링되자마자 강제로 안 보이게 숨깁니다.
-next_penalty = st.session_state.eval_penalty + 10
+            next_penalty = st.session_state.eval_penalty + 10
             
             components.html(
                 f"""
