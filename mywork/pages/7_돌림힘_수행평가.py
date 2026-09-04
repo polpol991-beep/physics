@@ -4,9 +4,14 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
-import random  # 🌟 랜덤 출제를 위해 추가
+import random
+
+# =====================================================================
+# 🛠️ 경로 설정 (이미지 에러 방지용)
+# =====================================================================
 current_folder = os.path.dirname(os.path.abspath(__file__))
 parent_folder = os.path.dirname(current_folder)
+
 st.set_page_config(page_title="수행평가: 돌림힘과 평형", page_icon="⚖️", layout="wide")
 
 # =====================================================================
@@ -26,8 +31,6 @@ if "google_creds" in st.secrets:
     creds_dict = json.loads(st.secrets["google_creds"])
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 else:
-    current_folder = os.path.dirname(os.path.abspath(__file__))
-    parent_folder = os.path.dirname(current_folder) 
     key_path = os.path.join(parent_folder, "credentials.json")
     creds = ServiceAccountCredentials.from_json_keyfile_name(key_path, scope)
 
@@ -41,17 +44,16 @@ s_name = st.session_state.student_name
 st.success(f"현재 로그인된 학생: **{s_id} {s_name}**")
 
 # =====================================================================
-# 🌟 [신규] 학생마다 다른 A, B, C 질량을 생성하는 로직
+# 🌟 학생마다 다른 A, B, C 질량을 생성하는 로직
 # =====================================================================
-random.seed(s_id + "_eval") # 학번을 시드로 사용하여 항상 같은 랜덤값 보장
-# 10kg 추와 1~5m 갈고리 범위 내에서 정수로 완벽히 측정 가능한 질량만 뽑았습니다!
+random.seed(s_id + "_eval")
 eval_mass_a = random.choice([2, 4, 6, 8])
 eval_mass_b = random.choice([15, 20, 25])
 eval_mass_c = random.choice([30, 40, 50])
-random.seed() # 다음 작업을 위해 초기화
+random.seed()
 
 # =====================================================================
-# 🌟 가상 실험실 HTML 코드 (질량을 자유자재로 바꾸는 함수형으로 진화!)
+# 🌟 가상 실험실 HTML 코드
 # =====================================================================
 def get_sim_html(mass_a, mass_b, mass_c):
     return f"""
@@ -92,7 +94,6 @@ def get_sim_html(mass_a, mass_b, mass_c):
             <div class="inv-slot" id="slot-std"></div><div class="inv-slot" id="slot-a"></div><div class="inv-slot" id="slot-b"></div><div class="inv-slot" id="slot-c"></div>
         </div>
         
-        <!-- 🌟 파이썬에서 지정한 질량이 HTML로 쏙 들어갑니다! -->
         <div class="weight" id="w-std" data-mass="10">기준<br>10kg</div>
         <div class="weight" id="w-a" data-mass="{mass_a}">시료 A</div>
         <div class="weight" id="w-b" data-mass="{mass_b}">시료 B</div>
@@ -169,52 +170,24 @@ if st.button("HiddenPenalty", key="hidden_penalty"):
         except: pass
         st.rerun()
 
-# 자바스크립트를 이용해 화면에 렌더링되자마자 강제로 안 보이게 숨깁니다.
-            next_penalty = st.session_state.eval_penalty + 10
-            
-            components.html(
-                f"""
-                <script>
-                const parentDoc = window.parent.document;
-                const parentWin = window.parent;
+# 버튼 숨기기 스크립트
+components.html(
+    """
+    <script>
+    const btns = window.parent.document.querySelectorAll("button");
+    btns.forEach(btn => {
+        if (btn.innerText.includes("HiddenPenalty")) {
+            btn.style.display = "none";
+        }
+    });
+    </script>
+    """, height=0
+)
 
-                // 점수가 업데이트될 때마다 알림 메시지를 갱신하기 위해 기존 감시자 제거
-                if (parentWin.visibilityHandler) {{
-                    parentDoc.removeEventListener("visibilitychange", parentWin.visibilityHandler);
-                }}
-
-                // 새로운 감시자 생성 (부모 창 전체를 감시)
-                parentWin.visibilityHandler = function() {{
-                    if (parentDoc.hidden) {{
-                        try {{
-                            // 감점 버튼을 찾아서 몰래 0.1초 만에 누름
-                            const btns = parentDoc.querySelectorAll("button");
-                            for (let i = 0; i < btns.length; i++) {{
-                                if (btns[i].innerText.includes("HiddenPenalty")) {{
-                                    btns[i].click();
-                                    break;
-                                }}
-                            }}
-                            
-                            // 버튼 클릭 후 경고창 띄우기 (파이썬에서 계산한 누적 감점 표시)
-                            setTimeout(() => {{
-                                parentWin.alert("🚨 [경고] 화면 이탈이 감지되었습니다! (10점 감점)\\n\\n📉 현재 누적 감점: {next_penalty}점");
-                            }}, 100);
-                        }} catch(e) {{ 
-                            console.log(e); 
-                        }}
-                    }}
-                }};
-
-                // 감시자 투입
-                parentDoc.addEventListener("visibilitychange", parentWin.visibilityHandler);
-                </script>
-                """, height=0
-            )
 tab_practice, tab_eval = st.tabs(["🛠️ 수행연습", "🔥 수행평가 실시"])
 
 # ---------------------------------------------------------
-# [탭 1] 수행연습 화면 (고정된 질량으로 연습)
+# [탭 1] 수행연습 화면 
 # ---------------------------------------------------------
 with tab_practice:
     if st.session_state.get('eval_started', False):
@@ -223,11 +196,10 @@ with tab_practice:
     else:
         st.header("🛠️ 미지 시료 질량 찾기 연습")
         st.info("💡 실전에서는 A, B, C의 질량이 변합니다! 어떻게 평형을 맞추는지 미리 감을 익혀보세요.")
-        # 연습용 고정 질량 (A=5, B=15, C=20)
         components.html(get_sim_html(5, 15, 20), height=650, scrolling=False)
 
 # ---------------------------------------------------------
-# [탭 2] 수행평가 실시 화면 (학생별 랜덤 질량 부여!)
+# [탭 2] 수행평가 실시 화면
 # ---------------------------------------------------------
 with tab_eval:
     st.header("🔥 돌림힘 수행평가 실시")
@@ -292,43 +264,55 @@ with tab_eval:
         if st.session_state.eval_started and st.session_state.eval_status == "진행중":
             st.warning("🚨 [주의] 평가가 진행 중입니다. 다른 탭으로 이동하거나 화면을 끄면 감점 처리됩니다.")
             
-            # 자바스크립트가 화면 이탈 감지 시, 위에 숨겨둔 파이썬 감점 버튼을 클릭!
+            # 자바스크립트 화면 이탈 감지 및 누적 감점 표시 로직
+            next_penalty = st.session_state.eval_penalty + 10
+            
             components.html(
-                """
+                f"""
                 <script>
-                document.addEventListener("visibilitychange", function() {
-                    if (document.hidden) { 
-                        try {
-                            window.parent.alert("🚨 [경고] 화면 이탈이 감지되었습니다! (10점 감점)");
-                            var btns = window.parent.document.querySelectorAll("button");
-                            for (var i = 0; i < btns.length; i++) {
-                                if (btns[i].innerText.includes("HiddenPenalty")) {
+                const parentDoc = window.parent.document;
+                const parentWin = window.parent;
+
+                if (parentWin.visibilityHandler) {{
+                    parentDoc.removeEventListener("visibilitychange", parentWin.visibilityHandler);
+                }}
+
+                parentWin.visibilityHandler = function() {{
+                    if (parentDoc.hidden) {{
+                        try {{
+                            const btns = parentDoc.querySelectorAll("button");
+                            for (let i = 0; i < btns.length; i++) {{
+                                if (btns[i].innerText.includes("HiddenPenalty")) {{
                                     btns[i].click();
                                     break;
-                                }
-                            }
-                        } catch(e) { console.log(e); }
-                    }
-                });
+                                }}
+                            }}
+                            
+                            setTimeout(() => {{
+                                parentWin.alert("🚨 [경고] 화면 이탈이 감지되었습니다! (10점 감점)\\n\\n📉 현재 누적 감점: {next_penalty}점");
+                            }}, 100);
+                        }} catch(e) {{ 
+                            console.log(e); 
+                        }}
+                    }}
+                }};
+
+                parentDoc.addEventListener("visibilitychange", parentWin.visibilityHandler);
                 </script>
                 """, height=0
             )
             
-            # 🌟 [수정 완료] 실전용 학생별 시뮬레이션 표시!
             components.html(get_sim_html(eval_mass_a, eval_mass_b, eval_mass_c), height=650, scrolling=False)
             
             with st.form("eval_form"):
                 st.subheader("📝 수행평가 답안지 (총 100점)")
                 
-                # 시뮬레이션 결과 입력란 (각 10점)
                 st.markdown("---")
                 st.markdown("### [Part 1] 가상 실험 결과")
-                # 🖼️ 나중에 그림 추가: st.image("img/sim_q.png", use_container_width=True)
                 mass_A = st.number_input("**[10점]** 미지 시료 **A**의 질량은 몇 kg 입니까?", step=1, value=None)
                 mass_B = st.number_input("**[10점]** 미지 시료 **B**의 질량은 몇 kg 입니까?", step=1, value=None)
                 mass_C = st.number_input("**[10점]** 미지 시료 **C**의 질량은 몇 kg 입니까?", step=1, value=None)
 
-                # 기존 퀴즈 (배점 조정)
                 st.markdown("---")
                 st.markdown("### [Part 2] 돌림힘과 평형 이론")
                 
@@ -366,12 +350,10 @@ with tab_eval:
                         base_score = 0
                         correct_count = 0
                         
-                        # 🌟 학생마다 다르게 출제된 A, B, C 정답과 비교하여 채점합니다!
                         if mass_A == eval_mass_a: base_score += 10; correct_count += 1
                         if mass_B == eval_mass_b: base_score += 10; correct_count += 1
                         if mass_C == eval_mass_c: base_score += 10; correct_count += 1
                         
-                        # Part 2 채점
                         if a1 == "B 지점 (회전축에서 멀수록 작은 힘으로도 큰 돌림힘을 낼 수 있으므로)": base_score += 10; correct_count += 1
                         if a2 == 4: base_score += 10; correct_count += 1
                         if a3 == 2: base_score += 10; correct_count += 1
