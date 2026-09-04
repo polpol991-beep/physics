@@ -182,8 +182,6 @@ components.html(
     </script>
     """, height=0
 )
-st.markdown('</div>', unsafe_allow_html=True)
-
 
 tab_practice, tab_eval = st.tabs(["🛠️ 수행연습", "🔥 수행평가 실시"])
 
