@@ -293,27 +293,27 @@ with tab_eval:
                 st.markdown("### [Part 2] 돌림힘과 평형 이론")
                 
                 st.markdown("**문제 1. [객관식] (10점)** 자동차 바퀴의 꽉 조여진 볼트를 스패너로 풀려고 합니다. 볼트(회전축)로부터 가까운 A 지점과 먼 B 지점 중, 더 적은 힘으로 볼트를 풀 수 있는 곳은 어디이며 그 이유는 무엇입니까?")
-                st.image("img/q1_spanner.png", use_container_width=True)
+                st.image(os.path.join(parent_folder, "img", "q1_spanner.png"), use_container_width=True)
                 a1 = st.radio("1번 답 선택", ["A 지점 (회전축에 가까울수록 돌림힘이 커지므로)", "B 지점 (회전축에서 멀수록 작은 힘으로도 큰 돌림힘을 낼 수 있으므로)", "두 지점 모두 필요한 힘은 같다."], index=None, key="a1")
                 
                 st.markdown("**문제 2. [단답식] (10점)** 무게를 무시할 수 있는 시소의 받침점으로부터 왼쪽으로 2 m 떨어진 곳에 질량이 10 kg인 물체가 놓여 있습니다. 이 시소가 수평을 유지하기 위해 오른쪽으로 5 m 떨어진 곳에 놓아야 할 물체 X의 질량은 몇 kg입니까?")
-                st.image("img/q2_seesaw.png", use_container_width=True)
+                st.image(os.path.join(parent_folder, "img", "q2_seesaw.png"), use_container_width=True)
                 a2 = st.number_input("2번 답 입력 (숫자만)", step=1, value=None, key="a2")
                 
                 st.markdown("**문제 3. [단답식] (10점)** 길이가 4 m이고 질량이 2 kg인 균일한 막대가 있습니다. 막대의 왼쪽 끝에서 1 m 떨어진 지점에 받침대를 놓았습니다. 이 막대가 수평을 이루도록 하려면 막대의 왼쪽 끝부분에 몇 kg의 추를 매달아야 합니까?")
-                st.image("img/q3_stick.png", use_container_width=True)
+                st.image(os.path.join(parent_folder, "img", "q3_stick.png"), use_container_width=True)
                 a3 = st.number_input("3번 답 입력 (숫자만)", step=1, value=None, key="a3")
                 
                 st.markdown("**문제 4. [객관식] (10점)** 두 개의 기둥 A(왼쪽)와 B(오른쪽)가 떠받치고 있는 수평 다리 위를 무거운 트럭이 지나가고 있습니다. 트럭이 기둥 B에 더 가깝게 위치해 있을 때, 다리를 떠받치는 힘(수직항력)의 크기에 대한 설명으로 옳은 것은?")
-                st.image("img/q4_bridge.png", use_container_width=True)
+                st.image(os.path.join(parent_folder, "img", "q4_bridge.png"), use_container_width=True)
                 a4 = st.radio("4번 답 선택", ["기둥 A가 받는 힘이 더 크다.", "기둥 B가 받는 힘이 더 크다.", "기둥 A와 B가 받는 힘은 같다."], index=None, key="a4")
                 
                 st.markdown("**문제 5. [객관식] (15점)** 아반떼와 같이 차체가 낮고 바닥 면적이 넓은 승용차와, 짐을 높게 쌓아 올려 차체가 높은 화물차가 동일한 각도의 굽은 경사로를 달리고 있습니다. 두 차량 중 더 안정적인 차량과 그 이유로 올바른 것은?")
-                st.image("img/q5_car.png", use_container_width=True)
+                st.image(os.path.join(parent_folder, "img", "q5_car.png"), use_container_width=True)
                 a5 = st.radio("5번 답 선택", ["승용차 (무게중심이 낮고 지지면이 넓어 안정성이 높다.)", "화물차 (질량이 더 커서 관성에 의해 안정성이 높다.)", "두 차량의 안정성은 동일하다."], index=None, key="a5")
                 
                 st.markdown("**문제 6. [단답식 - 심화] (15점)** 건물 옥상 밖으로 2 m가 튀어나오도록 널빤지를 놓았습니다. 널빤지 전체의 길이는 6 m이고, 질량은 10 kg으로 균일합니다. 질량이 5 kg인 고양이가 옥상에서 출발하여 밖으로 튀어나온 널빤지 위를 조심스럽게 걸어갑니다. 널빤지가 뒤집어지기 직전까지 고양이는 옥상 모서리(받침점)로부터 최대 몇 m까지 걸어갈 수 있습니까?")
-                st.image("img/q6_cat.png", use_container_width=True)
+                st.image(os.path.join(parent_folder, "img", "q6_cat.png"), use_container_width=True)
                 a6 = st.number_input("6번 답 입력 (숫자만)", step=1, value=None, key="a6")
                 
                 st.markdown("---")
