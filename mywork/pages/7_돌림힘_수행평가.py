@@ -170,19 +170,47 @@ if st.button("HiddenPenalty", key="hidden_penalty"):
         st.rerun()
 
 # 자바스크립트를 이용해 화면에 렌더링되자마자 강제로 안 보이게 숨깁니다.
-components.html(
-    """
-    <script>
-    const btns = window.parent.document.querySelectorAll("button");
-    btns.forEach(btn => {
-        if (btn.innerText.includes("HiddenPenalty")) {
-            btn.style.display = "none";
-        }
-    });
-    </script>
-    """, height=0
-)
+next_penalty = st.session_state.eval_penalty + 10
+            
+            components.html(
+                f"""
+                <script>
+                const parentDoc = window.parent.document;
+                const parentWin = window.parent;
 
+                // 점수가 업데이트될 때마다 알림 메시지를 갱신하기 위해 기존 감시자 제거
+                if (parentWin.visibilityHandler) {{
+                    parentDoc.removeEventListener("visibilitychange", parentWin.visibilityHandler);
+                }}
+
+                // 새로운 감시자 생성 (부모 창 전체를 감시)
+                parentWin.visibilityHandler = function() {{
+                    if (parentDoc.hidden) {{
+                        try {{
+                            // 감점 버튼을 찾아서 몰래 0.1초 만에 누름
+                            const btns = parentDoc.querySelectorAll("button");
+                            for (let i = 0; i < btns.length; i++) {{
+                                if (btns[i].innerText.includes("HiddenPenalty")) {{
+                                    btns[i].click();
+                                    break;
+                                }}
+                            }}
+                            
+                            // 버튼 클릭 후 경고창 띄우기 (파이썬에서 계산한 누적 감점 표시)
+                            setTimeout(() => {{
+                                parentWin.alert("🚨 [경고] 화면 이탈이 감지되었습니다! (10점 감점)\\n\\n📉 현재 누적 감점: {next_penalty}점");
+                            }}, 100);
+                        }} catch(e) {{ 
+                            console.log(e); 
+                        }}
+                    }}
+                }};
+
+                // 감시자 투입
+                parentDoc.addEventListener("visibilitychange", parentWin.visibilityHandler);
+                </script>
+                """, height=0
+            )
 tab_practice, tab_eval = st.tabs(["🛠️ 수행연습", "🔥 수행평가 실시"])
 
 # ---------------------------------------------------------
