@@ -161,7 +161,6 @@ exam_open_flag = check_exam_open(user_sheet)
 # =====================================================================
 # 🚨 진짜 감점을 먹이는 보이지 않는 버튼 로직
 # =====================================================================
-st.markdown('<div style="opacity: 0; height: 0px; overflow: hidden;">', unsafe_allow_html=True)
 if st.button("HiddenPenalty", key="hidden_penalty"):
     if st.session_state.get('eval_started', False) and st.session_state.get('eval_status') == "진행중":
         st.session_state.eval_penalty += 10
@@ -169,6 +168,20 @@ if st.button("HiddenPenalty", key="hidden_penalty"):
             result_sheet.update_cell(st.session_state.eval_row_index, 4, st.session_state.eval_penalty)
         except: pass
         st.rerun()
+
+# 자바스크립트를 이용해 화면에 렌더링되자마자 강제로 안 보이게 숨깁니다.
+components.html(
+    """
+    <script>
+    const btns = window.parent.document.querySelectorAll("button");
+    btns.forEach(btn => {
+        if (btn.innerText.includes("HiddenPenalty")) {
+            btn.style.display = "none";
+        }
+    });
+    </script>
+    """, height=0
+)
 st.markdown('</div>', unsafe_allow_html=True)
 
 
