@@ -195,6 +195,30 @@ with tab_learn:
 # ---------------------------------------------------------
 # [탭 2] 형성평가 화면
 # ---------------------------------------------------------
+# =====================================================================
+# 🚨 퀴즈용 보이지 않는 감점 버튼 로직
+# =====================================================================
+if st.button("HiddenQuizPenalty", key="hidden_quiz_penalty"):
+    if st.session_state.get('exam_started', False) and st.session_state.get('db_status') == "진행중":
+        st.session_state.cheating_penalty += 10
+        try:
+            result_sheet.update_cell(st.session_state.row_index, 4, st.session_state.cheating_penalty)
+        except: pass
+        st.rerun()
+
+# 자바스크립트로 버튼 완벽하게 숨기기
+components.html(
+    """
+    <script>
+    const btns = window.parent.document.querySelectorAll("button");
+    btns.forEach(btn => {
+        if (btn.innerText.includes("HiddenQuizPenalty")) {
+            btn.style.display = "none";
+        }
+    });
+    </script>
+    """, height=0
+)
 with tab_quiz:
     st.header("✅ 1단원 형성평가")
     
@@ -294,17 +318,43 @@ with tab_quiz:
         if st.session_state.exam_started and st.session_state.db_status == "진행중":
             st.warning("🚨 [주의] 평가가 진행 중입니다. 화면을 이탈하면 경고 알림이 발생합니다.")
             
+# 자바스크립트 화면 이탈 감지 및 누적 감점 표시 로직
+            next_penalty = st.session_state.cheating_penalty + 10
+            
             components.html(
-                """
+                f"""
                 <script>
-                document.addEventListener("visibilitychange", function() {
-                    if (document.hidden) {
-                        window.parent.alert("🚨 [경고] 화면 이탈이 감지되었습니다! 부정행위로 간주될 수 있습니다.");
-                    }
-                });
+                const parentDoc = window.parent.document;
+                const parentWin = window.parent;
+
+                if (parentWin.quizVisibilityHandler) {{
+                    parentDoc.removeEventListener("visibilitychange", parentWin.quizVisibilityHandler);
+                }}
+
+                parentWin.quizVisibilityHandler = function() {{
+                    if (parentDoc.hidden) {{
+                        try {{
+                            // 숨겨둔 파이썬 감점 버튼을 찾아서 클릭!
+                            const btns = parentDoc.querySelectorAll("button");
+                            for (let i = 0; i < btns.length; i++) {{
+                                if (btns[i].innerText.includes("HiddenQuizPenalty")) {{
+                                    btns[i].click();
+                                    break;
+                                }}
+                            }}
+                            
+                            setTimeout(() => {{
+                                parentWin.alert("🚨 [경고] 화면 이탈이 감지되었습니다! (10점 감점)\\n\\n📉 현재 누적 감점: {next_penalty}점");
+                            }}, 100);
+                        }} catch(e) {{ 
+                            console.log(e); 
+                        }}
+                    }}
+                }};
+
+                parentDoc.addEventListener("visibilitychange", parentWin.quizVisibilityHandler);
                 </script>
-                """,
-                height=0
+                """, height=0
             )
             
             with st.form("quiz_form"):
