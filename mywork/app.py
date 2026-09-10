@@ -35,7 +35,7 @@ if 'logged_in' not in st.session_state:
 # 로그인 성공 화면
 if st.session_state.logged_in:
     st.success(f"환영합니다! **{st.session_state.student_id} {st.session_state.student_name}** 학생")
-    st.info("👈 왼쪽 사이드바 메뉴에서 **'1_힘과_운동'**을 클릭해 학습과 평가를 시작하세요.")
+    st.info("👈 왼쪽 사이드바 메뉴에서 학습하고자하는 단원을 클릭해 학습과 평가를 시작하세요.")
     if st.button("로그아웃"):
         st.session_state.logged_in = False
         st.session_state.clear()
